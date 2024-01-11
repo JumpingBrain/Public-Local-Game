@@ -11,8 +11,7 @@ pygame.font.init()
 
 class Data:
 	def __init__(self):
-		mon_info = pygame.display.Info()
-		self.mon_siz = [mon_info.current_w, mon_info.current_h]
+		self.mon_size = None
 
 		self.jsondir = PARDIR + '/json/'
 		self.imagedir = PARDIR + '/images/'
@@ -56,7 +55,11 @@ class Data:
 			f_size = f_base
 
 
-		self.ui_dat = json.load(open('non_ingame_data.json'))
+		self.ui_dat = json.load(open(self.jsondir + 'non_ingame_data.json'))
+		self.winsize = self.ui_dat['winsize']
+		self.dissize = self.ui_dat['dissize']
+		self.ratio = self.winsize[0] / self.dissize[0]
+		self.dt_fps = 60
 
 		self.raw_map_data = {key[:-5]:json.load(open(self.jsondir + 'maps/' + key)) for key in os.listdir(self.jsondir + 'maps/')}
 

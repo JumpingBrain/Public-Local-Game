@@ -23,8 +23,14 @@ print("Waiting for connection, Server Started")
 
 players = [Player([50, 10]), Player([100, 10])]
 
+class Data:
+	def __init__(self):
+		self.player_id = 0
+		self.connections = []
+
+d = Data()
+
 def threaded_client(conn, player_id):
-	print(f'You are player #{player_id}')
 	conn.send(pickle.dumps(players[player_id]))
 	reply = ""
 	while 1:
@@ -49,11 +55,17 @@ def threaded_client(conn, player_id):
 	print("Lost connection")
 	conn.close()
 
+	del d.connections[player_id]
 
-player_id = 0
-while 1:
-	conn, addr = s.accept()
-	print("Connected to:", addr)
 
-	start_new_thread(threaded_client, (conn, player_id))
-	player_id += 1
+def run(s, d):
+	while 1:
+		conn, addr = s.accept()
+		print("Connected to:", addr)
+
+		d.connections.append(0)
+		start_new_thread(threaded_client, (conn, len(d.connections)-1))
+		print(d.connections)
+		#player_id += 1
+
+start_new_thread(run, (s, d))
