@@ -6,7 +6,7 @@ import pickle
 from player import Player
 
 
-server = "192.168.1.144"
+server = socket.gethostname()
 port = 5555
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
