@@ -83,7 +83,8 @@ class Player:
 
 	def render(self, display, int_camera):
 		#render gamer tag
-		display.blit(data.p_gamer_tag, (self.rect.centerx - (data.p_gamer_tag_size[0] / 2) - int_camera[0], self.rect.y - data.p_gamer_tag_size[1] - 2 - int_camera[1]))
+		gamer_tag_surf = data.fonts['mainfont8'].render(self.gamer_tag, False, (255, 255, 255))
+		display.blit(gamer_tag_surf, (self.rect.centerx - (data.p_gamer_tag_size[0] / 2) - int_camera[0], self.rect.y - data.p_gamer_tag_size[1] - 2 - int_camera[1]))
 		#render actual player
 		if self.curr_image_frame >= len(data.p_images[f'{self.movement + self.id_tag} {self.dir}']):
 			self.curr_image_frame = 0
