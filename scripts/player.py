@@ -4,7 +4,8 @@ import sys
 from data import data
 
 class Player:
-	def __init__(self, pos):
+	def __init__(self, pos, id_tag):
+		self.id_tag = id_tag
 		self.rect = pygame.FRect(pos[0], pos[1], 7, 11)
 
 		self.falling_speed = .2
@@ -78,10 +79,13 @@ class Player:
 			self.xp = 0
 
 	def render(self, display, int_camera):
-		if self.curr_image_frame >= len(data.p_images[f'{self.movement} {self.dir}']):
+		#render gamer tag
+		display.blit(data.p_gamer_tag, (self.rect.centerx - (data.p_gamer_tag_size[0] / 2) - int_camera[0], self.rect.y - data.p_gamer_tag_size[1] - 2 - int_camera[1]))
+		#render actual player
+		if self.curr_image_frame >= len(data.p_images[f'{self.movement + self.id_tag} {self.dir}']):
 			self.curr_image_frame = 0
 			self.hitground = False
-		display.blit(data.p_images[f'{self.movement} {self.dir}'][int(self.curr_image_frame)], (self.rect.x - int_camera[0], self.rect.y - int_camera[1]))
+		display.blit(data.p_images[f'{self.movement + self.id_tag} {self.dir}'][int(self.curr_image_frame)], (self.rect.x - int_camera[0], self.rect.y - int_camera[1]))
 
 	def collisions(self, rect_list):
 		hits = []

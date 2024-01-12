@@ -3,14 +3,11 @@ import sys
 from pygame.locals import *
 from math import floor
 from _thread import *
-try:
-	import server #attempt to host the server
-except:
-	pass
 
 from data import data
 from network import Network
 from map import Map
+from menu.menu_main import MenuMain
 
 pygame.init()
 
@@ -25,6 +22,20 @@ class Main:
 		self.window = pygame.display.set_mode(data.winsize)
 		self.display = pygame.Surface(data.dissize)
 
+		#run menu
+		self.network = None
+		self.host_server = False
+		self.join_ip = None
+		self.mainmenu = MenuMain(self)
+		self.mainmenu.run()
+
+		if self.host_server:
+			try: import server #attempt to host the server
+			except: pass
+			self.network = Network(True)
+		else:
+			self.network = Network(True, server=self.join_ip)
+
 		self.clock = pygame.time.Clock()
 		self.dt = 1
 		self.ticks = 0
@@ -36,13 +47,14 @@ class Main:
 		self.int_camera = self.camera.copy()
 
 	def process(self, p1, p2):
-		self.dt = self.clock.tick(data.ui_dat['fps_cap']) * .001 * data.dt_fps
+		self.dt = self.clock.tick(data.fps_cap) * .001 * data.dt_fps
 		self.ticks += 1
 		self.timer += 1 * self.dt
 
 		self.camera[0] += (((p1.rect.centerx - self.camera[0]) - (data.dissize[0] / 2)) / 20) * self.dt
 		self.camera[1] += (((p1.rect.centery - self.camera[1]) - (data.dissize[1] / 2)) / 20) * self.dt
 		self.int_camera[0] = floor(self.camera[0])
+
 		self.int_camera[1] = floor(self.camera[1])
 
 		for event in pygame.event.get():
@@ -68,7 +80,8 @@ class Main:
 
 		p1.render(self.display, self.int_camera)
 
-		p2.render(self.display, self.int_camera)
+		try: p2.render(self.display, self.int_camera)
+		except: pass
 
 		p1.render_stats(self.display)
 
@@ -78,10 +91,9 @@ class Main:
 
 
 	def run(self):
-		n = Network()
-		p1 = n.get_p()
+		p1 = self.network.get_p()
 		while 1:
-			p2 = n.send(p1)
+			p2 = self.network.send(p1)
 
 			self.process(p1, p2)
 

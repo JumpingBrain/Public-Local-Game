@@ -21,7 +21,7 @@ s.listen(2)
 print("Waiting for connection, Server Started")
 
 
-players = [Player([50, 10]), Player([100, 10])]
+players = [Player([50, 10], '1'), Player([100, 10], '2')]
 
 class Data:
 	def __init__(self):
@@ -32,6 +32,7 @@ d = Data()
 
 def threaded_client(conn, player_id):
 	conn.send(pickle.dumps(players[player_id]))
+	print('sent play obj')
 	reply = ""
 	while 1:
 		try:
@@ -65,7 +66,6 @@ def run(s, d):
 
 		d.connections.append(0)
 		start_new_thread(threaded_client, (conn, len(d.connections)-1))
-		print(d.connections)
-		#player_id += 1
+		print(f'Players connected: {len(d.connections)}')
 
 start_new_thread(run, (s, d))
