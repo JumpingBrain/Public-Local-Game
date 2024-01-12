@@ -18,11 +18,11 @@ class Network:
 			for ip in network:
 				addr = (str(ip), 5555)
 				#print('checking ', addr)
-				print(addr[0])
+				#print(addr[0])
 				ping = self.search_servers(addr)
 				if ping != None:
 					#print(f'!-> Connected to server {addr[0]} <-!')
-					print(f'--Connected to server {addr[0]}--')
+					#print(f'--Connected to server {addr[0]}--')
 					self.server = addr[0]
 					self.found_server = True
 					self.ip_found = addr[0]
@@ -34,14 +34,14 @@ class Network:
 				self.port = 5555
 				self.addr = (self.server, self.port)
 				self.p = self.connect()
-				print(self.p)
+				#print(self.p)
 			else:
 				self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 				self.server = server
 				self.port = 5555
 				self.addr = (self.server, self.port)
 				self.p = self.connect()
-				print(self.p)
+				#print(self.p)
 
 	def get_p(self):
 		return self.p
@@ -51,7 +51,7 @@ class Network:
 			self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #gotta make new socket else we get \/
 			self.client.settimeout(0.05)									#[WinError 10022] An invalid argument was supplied
 			self.p = self.client.connect(addr)
-			print(self.p)
+			#print(self.p)
 			data = pickle.loads(self.client.recv(2048))
 			return data
 		except Exception as e:

@@ -28,11 +28,13 @@ class Button:
 		self.button_surf = pygame.Surface(self.hitbox_area)
 		self.button_surf.blit(self.border_img, (0, 0))
 		self.button_surf.blit(self.button_text, (self.padding / 2, self.padding / 2))
+		self.button_surf.set_colorkey((0, 0, 0, 0))
 
 		self.downsize = .75
 		self.clicked_button_surf = pygame.Surface((self.hitbox_area[0] * self.downsize, self.hitbox_area[1] * self.downsize))
 		tmp_size = self.border_img.get_size()
 		self.clicked_button_surf.blit(pygame.transform.scale(self.border_img, (tmp_size[0] * self.downsize, tmp_size[1] * self.downsize)), (0, 0))
+		self.clicked_button_surf.set_colorkey((0, 0, 0, 0))
 		tmp_size = self.button_text.get_size()
 		self.clicked_button_surf.blit(pygame.transform.scale(self.button_text, (tmp_size[0] * self.downsize, tmp_size[1] * self.downsize)), ((self.padding / 2) * self.downsize, (self.padding / 2) * self.downsize))
 

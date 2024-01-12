@@ -77,6 +77,11 @@ class Main:
 
 		p1.update(self.dt, self.map.map_rects)
 
+		if self.timer >= data.dt_fps:
+			self.timer = 0
+			print(self.ticks)
+			self.ticks = 0
+
 	def rendering(self, p1, p2):
 		self.display.fill((135, 206, 245))
 		self.map.render(p1.pos)

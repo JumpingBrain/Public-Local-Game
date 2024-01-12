@@ -32,7 +32,7 @@ d = Data()
 
 def threaded_client(conn, player_id):
 	conn.send(pickle.dumps(players[player_id]))
-	print('sent play obj')
+	#print('sent play obj')
 	reply = ""
 	while 1:
 		try:
@@ -40,7 +40,7 @@ def threaded_client(conn, player_id):
 			players[player_id] = data
 
 			if not data:
-				print("Disconnected")
+				#print("Disconnected")
 				break
 			else:
 				if player_id == 0:
@@ -53,7 +53,7 @@ def threaded_client(conn, player_id):
 			print(e)
 			break
 
-	print("Lost connection")
+	#print("Lost connection")
 	conn.close()
 
 	del d.connections[player_id]
@@ -62,10 +62,10 @@ def threaded_client(conn, player_id):
 def run(s, d):
 	while 1:
 		conn, addr = s.accept()
-		print("Connected to:", addr)
+		#print("Connected to:", addr)
 
 		d.connections.append(0)
 		start_new_thread(threaded_client, (conn, len(d.connections)-1))
-		print(f'Players connected: {len(d.connections)}')
+		#print(f'Players connected: {len(d.connections)}')
 
 start_new_thread(run, (s, d))

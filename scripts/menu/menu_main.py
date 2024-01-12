@@ -14,9 +14,10 @@ class MenuMain:
 		self.clock = pygame.time.Clock()
 		self.end_loading_thread = False
 
-		self.play_button = Button([True, [data.dissize[0] - 200, data.dissize[1] - 25]], 'button_border1', 'PLAY', (220, 220, 220), 16, 'play') # render_pos, border_name, text, text_colour, text_size
-		self.join_lan_button = Button([True, [data.dissize[0] + 7, data.dissize[1] - 25]], 'button_border1', 'JOIN LAN', (220, 220, 220), 16, 'join_lan')
-		self.quit_button = Button([True, [data.dissize[0] + 200, data.dissize[1] - 25]], 'button_border1', 'EXIT', (220, 220, 220), 16, 'exit')
+		font_size = 10
+		self.play_button = Button([True, [data.dissize[0] - 200, data.dissize[1]]], 'button_border1', 'PLAY', (220, 220, 220), font_size, 'play') # render_pos, border_name, text, text_colour, text_size
+		self.join_lan_button = Button([True, [data.dissize[0] + 7, data.dissize[1]]], 'button_border1', 'JOIN LAN', (220, 220, 220), font_size, 'join_lan')
+		self.quit_button = Button([True, [data.dissize[0] + 200, data.dissize[1]]], 'button_border1', 'EXIT', (220, 220, 220), font_size, 'exit')
 
 		self.button_functions = {
 			'play' 		: self.play,
@@ -119,7 +120,7 @@ class MenuMain:
 						if event.key == pygame.K_BACKSPACE:
 							self.name = self.name[:-1]
 						if event.key == pygame.K_RETURN:
-							if len(self.name) > 3:
+							if len(self.name) > 2:
 								data.modify_json('json/player_data/user_specified_info.json', 'gamer_tag', self.name)
 								self.changing_name = False
 								data.reload()
