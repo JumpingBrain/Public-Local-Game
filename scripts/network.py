@@ -71,6 +71,12 @@ class Network:
 		except socket.error as e:
 			print(e, 'goo goo gah gah')
 
+	def str_send(self, data):
+		try:
+			self.client.send(str.encode(data))
+		except socket.error as e:
+			print(e)
+
 	def recieve(self):
 		try:
 			return self.client.recv(2048)

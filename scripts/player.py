@@ -78,6 +78,9 @@ class Player:
 			self.level += 1 
 			self.xp = 0
 
+		#gamer tag stuff
+		self.gamer_tag = data.gamer_tag_str
+
 	def render(self, display, int_camera):
 		#render gamer tag
 		display.blit(data.p_gamer_tag, (self.rect.centerx - (data.p_gamer_tag_size[0] / 2) - int_camera[0], self.rect.y - data.p_gamer_tag_size[1] - 2 - int_camera[1]))

@@ -36,6 +36,9 @@ class Main:
 		else:
 			self.network = Network(True, server=self.join_ip)
 
+		#send player gamer tag to server
+		#self.network.str_send(data.gamer_tag_str)
+
 		self.clock = pygame.time.Clock()
 		self.dt = 1
 		self.ticks = 0
@@ -92,6 +95,7 @@ class Main:
 
 	def run(self):
 		p1 = self.network.get_p()
+		p1.gamer_tag = data.gamer_tag_str
 		while 1:
 			p2 = self.network.send(p1)
 

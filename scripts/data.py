@@ -55,10 +55,10 @@ class Data:
 			f_size = f_base
 
 		#loading more player surfaces here rather than in player class (cus of server stuff yaknow)
-		gamer_tag_str = self.retrieve_json('json/player_data/user_specified_info.json', 'gamer_tag')
+		self.gamer_tag_str = self.retrieve_json('json/player_data/user_specified_info.json', 'gamer_tag')
 		self.p_gamer_tag = self.fonts['mainfont8'].render(
-			gamer_tag_str, False, (255, 255, 255))
-		self.p_gamer_tag_size = self.fonts['mainfont8'].size(gamer_tag_str)
+			self.gamer_tag_str, False, (255, 255, 255))
+		self.p_gamer_tag_size = self.fonts['mainfont8'].size(self.gamer_tag_str)
 
 
 		self.ui_dat = json.load(open(self.jsondir + 'non_ingame_data.json'))
@@ -113,10 +113,10 @@ class Data:
 			f_size = f_base
 
 		#loading more player surfaces here rather than in player class (cus of server stuff yaknow)
-		gamer_tag_str = self.retrieve_json('json/player_data/user_specified_info.json', 'gamer_tag')
+		self.gamer_tag_str = self.retrieve_json('json/player_data/user_specified_info.json', 'gamer_tag')
 		self.p_gamer_tag = self.fonts['mainfont8'].render(
-			gamer_tag_str, False, (255, 255, 255))
-		self.p_gamer_tag_size = self.fonts['mainfont8'].size(gamer_tag_str)
+			self.gamer_tag_str, False, (255, 255, 255))
+		self.p_gamer_tag_size = self.fonts['mainfont8'].size(self.gamer_tag_str)
 
 
 		self.ui_dat = json.load(open(self.jsondir + 'non_ingame_data.json'))
