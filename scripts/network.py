@@ -6,6 +6,15 @@ import pickle
 import ipaddress
 
 
+def get_end_ip_id(ip_address):
+	n = 0
+	for char in str(ipaddress):
+		n += 1
+		if char == '.':
+			n = 0
+
+	return n
+
 class Network:
 	def __init__(self, skip, server='N/A'):
 		if not skip:
@@ -14,7 +23,7 @@ class Network:
 			self.found_server = False
 			self.p = None
 			self.ip_found = None
-			network = ipaddress.ip_network(self.server[:-3] + '0/24')
+			network = ipaddress.ip_network(self.server[:-get_end_ip_id(self.server)] + '0/24')
 			for ip in network:
 				addr = (str(ip), 5555)
 				#print('checking ', addr)
