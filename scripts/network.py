@@ -20,6 +20,7 @@ class Network:
 		if not skip:
 			self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			self.server = socket.gethostbyname(socket.gethostname())
+			print(self.server)
 			self.found_server = False
 			self.p = None
 			self.ip_found = None
@@ -37,9 +38,11 @@ class Network:
 					self.ip_found = addr[0]
 					break
 		else:
+			print(server)
 			if server == 'N/A':
 				self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 				self.server = socket.gethostbyname(socket.gethostname())
+				print(self.server)
 				self.port = 5555
 				self.addr = (self.server, self.port)
 				self.p = self.connect()
@@ -58,7 +61,7 @@ class Network:
 	def search_servers(self, addr):
 		try:
 			self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #gotta make new socket else we get \/
-			self.client.settimeout(0.05)									#[WinError 10022] An invalid argument was supplied
+			self.client.settimeout(0.1)									#[WinError 10022] An invalid argument was supplied
 			self.p = self.client.connect(addr)
 			#print(self.p)
 			data = pickle.loads(self.client.recv(2048))
