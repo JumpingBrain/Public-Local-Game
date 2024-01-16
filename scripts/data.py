@@ -2,16 +2,22 @@ import pygame
 import os
 import json
 
+from math import floor
 from pathlib import Path
 path = Path(os.getcwd())
 PARDIR = str(path.parent.absolute())
 
+pygame.init()
 pygame.font.init()
+
+from random_funcs import SavedIcon
 
 
 class Data:
 	def __init__(self):
-		self.mon_size = None
+		self.mon_size = None #must be set in 'main.py' because pygame must be initialised first
+		mon_data = pygame.display.Info()
+		self.mon_size = [mon_data.current_w, mon_data.current_h]
 
 		self.jsondir = PARDIR + '/json/'
 		self.imagedir = PARDIR + '/images/'
@@ -63,12 +69,20 @@ class Data:
 
 		self.ui_dat = json.load(open(self.jsondir + 'non_ingame_data.json'))
 		self.winsize = self.ui_dat['winsize']
-		self.dissize = self.ui_dat['dissize']
-		self.ratio = self.winsize[0] / self.dissize[0]
+		self.dissize_r = self.ui_dat["dissize_r"]
+		#self.dissize = self.ui_dat['dissize']
+		self.in_fullscreen = False
+		#self.ratio = [self.winsize[0] / self.dissize[0], self.winsize[1] / self.dissize[1]]
 		self.dt_fps = 60
 		self.fps_cap = self.ui_dat['fps_cap']
+		self.save_freq = self.ui_dat['save_freq']
+		self.get_screen_ratio()
+
+		self.save_timer = 0
 
 		self.raw_map_data = {key[:-5]:json.load(open(self.jsondir + 'maps/' + key)) for key in os.listdir(self.jsondir + 'maps/')}
+
+		self.saved_icon = SavedIcon(self.dissize, self.images['ui']['saved_icon'])
 
 	def reload(self):
 		self.jsondir = PARDIR + '/json/'
@@ -121,12 +135,38 @@ class Data:
 
 		self.ui_dat = json.load(open(self.jsondir + 'non_ingame_data.json'))
 		self.winsize = self.ui_dat['winsize']
-		self.dissize = self.ui_dat['dissize']
+		self.dissize = None
 		self.ratio = self.winsize[0] / self.dissize[0]
 		self.dt_fps = 60
 		self.fps_cap = self.ui_dat['fps_cap']
 
 		self.raw_map_data = {key[:-5]:json.load(open(self.jsondir + 'maps/' + key)) for key in os.listdir(self.jsondir + 'maps/')}
+
+	@property
+	def d_mpos(self):
+		mpos = pygame.mouse.get_pos()
+		return [mpos[0] / self.ratio[0], mpos[1] / self.ratio[1]]
+
+	def get_safe_windowsize(self):
+		size = (self.dissize[0] * 2, self.dissize[1] * 2)
+		return size
+
+	def get_screen_ratio(self):
+		ratio = self.mon_size[0] / self.mon_size[1]
+		ratio = [round(ratio, 2), 1]
+		self.dissize = [ratio[0] * self.dissize_r, ratio[1] * self.dissize_r]
+		self.ratio = [self.winsize[0] / self.dissize[0], self.winsize[1] / self.dissize[1]]
+
+	def save_current_player_data(self, player_obj):
+		json_dir = self.jsondir + 'player_data/in_game_player_info.json'
+		data = json.load(open(json_dir))
+		
+		#all things that need to be changed
+		data['xp_data'] = [player_obj.level, floor(player_obj.xp)]
+
+		with open(json_dir, 'w') as file:
+			file.write(json.dumps(data))
+			file.close()
 
 	def retrieve_json(self, json_dir, key):
 		json_dir = PARDIR + '/' + json_dir
@@ -180,14 +220,22 @@ class Data:
 		x, y = 0, 0
 		surf_x, surf_y = 0, 0
 		images = []
+		no_colour_cnt = 0
 
 		for _ in range(int(tilemap.get_width() / width) * int(tilemap.get_height() / height)):
 			images.append((pygame.Surface((width, height))))
 			curr_surf = images[len(images)-1]
+			no_colour_cnt = 0
 			for surf_y in range(height):
 				for surf_x in range(width):
-					pygame.draw.rect(curr_surf, tilemap.get_at((x + surf_x, y + surf_y)), (surf_x, surf_y, 1, 1))
-			images[len(images)-1].set_colorkey((0, 0, 0, 0))
+					colour = tilemap.get_at((x + surf_x, y + surf_y))
+					if colour == (0, 0, 0):
+						no_colour_cnt += 1
+					pygame.draw.rect(curr_surf, colour, (surf_x, surf_y, 1, 1))
+			if no_colour_cnt >= height * width:
+				del images[len(images)-1]
+			else:
+				images[len(images)-1].set_colorkey((0, 0, 0, 0))
 
 			x += width
 			if x >= tilemap.get_width():

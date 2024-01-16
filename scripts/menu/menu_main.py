@@ -27,7 +27,8 @@ class MenuMain:
 
 		#menu background stuff
 		self.bg_tree_size = 72
-		bg_tree = data.stitch_unpacked_image('maps', 'tree', (72, 72))
+		bg_tree = pygame.image.load(data.imagedir + 'maps/tree!12x12.png').convert()
+		bg_tree.set_colorkey((0, 0, 0, 0))
 		density = 6
 		self.bg_trees = [[bg_tree, i * (data.dissize[0] / density-2)] for i in range(density)]
 
@@ -132,7 +133,7 @@ class MenuMain:
 					))
 
 			mpos = pygame.mouse.get_pos()
-			d_mpos = [mpos[0] / data.ratio, mpos[1] / data.ratio]
+			d_mpos = [mpos[0] / data.ratio[1], mpos[1] / data.ratio[1]]
 			self.play_button.process(d_mpos, self, ())
 			self.quit_button.process(d_mpos, self, ())
 			self.join_lan_button.process(d_mpos, self, ())

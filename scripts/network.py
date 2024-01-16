@@ -4,7 +4,17 @@ import sys
 from _thread import *
 import pickle
 import ipaddress
+import subprocess
 
+results = subprocess.check_output(["netsh", "wlan", "show", "network", "mode=Bssid"])
+signal_strength = int(''.join([i for i in (''.join([i for i in list((results.decode('ascii')).split('\n')) if 'Signal' in i]).strip()) if i.isnumeric()]))
+#the above line is super unreadable, but it just retrieves the singal strength from a long list of strings of random stuff
+
+
+def find_search_speed():
+	results = subprocess.check_output(["netsh", "wlan", "show", "network", "mode=Bssid"])
+	signal_strength = int(''.join([i for i in (''.join([i for i in list((results.decode('ascii')).split('\n')) if 'Signal' in i]).strip()) if i.isnumeric()]))
+	return .085 / (signal_strength / 100)
 
 def get_end_ip_id(ip_address):
 	n = 0
@@ -25,6 +35,10 @@ class Network:
 			self.p = None
 			self.ip_found = None
 			network = ipaddress.ip_network(self.server[:-get_end_ip_id(self.server)] + '0/24')
+
+			self.search_speed = find_search_speed()
+			network = ipaddress.ip_network(self.server[:-3] + '0/24')
+
 			for ip in network:
 				addr = (str(ip), 5555)
 				#print('checking ', addr)
@@ -62,6 +76,7 @@ class Network:
 		try:
 			self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #gotta make new socket else we get \/
 			self.client.settimeout(0.1)									#[WinError 10022] An invalid argument was supplied
+			self.client.settimeout(self.search_speed)						#[WinError 10022] An invalid argument was supplied
 			self.p = self.client.connect(addr)
 			#print(self.p)
 			data = pickle.loads(self.client.recv(2048))

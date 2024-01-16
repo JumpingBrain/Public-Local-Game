@@ -17,11 +17,11 @@ except socket.error as e:
 	str(e)
 
 
-s.listen(2)
+s.listen(3)
 print("Waiting for connection, Server Started")
 
 
-players = [Player([50, 10], '1'), Player([100, 10], '2')]
+players = [Player([50, 10], '1'), Player([100, 10], '2'), Player([100, 10], '3')]
 
 class Data:
 	def __init__(self):
@@ -33,7 +33,7 @@ d = Data()
 def threaded_client(conn, player_id):
 	conn.send(pickle.dumps(players[player_id]))
 	#print('sent play obj')
-	reply = ""
+	reply = []
 	while 1:
 		try:
 			data = pickle.loads(conn.recv(2048))
@@ -44,9 +44,11 @@ def threaded_client(conn, player_id):
 				break
 			else:
 				if player_id == 0:
-					reply = players[1]
-				else:
-					reply = players[0]
+					reply = [players[1], players[2]]
+				elif player_id == 1:
+					reply = [players[0], players[2]]
+				elif player_id == 2:
+					reply = [players[0], players[1]]
 
 			conn.sendall(pickle.dumps(reply))
 		except Exception as e:

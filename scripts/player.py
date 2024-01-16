@@ -27,9 +27,15 @@ class Player:
 		self.shield = 100
 		self.shield_bar_length = 25
 		#LEVELING
-		self.level = 0
-		self.xp = 5
+		xp_data = data.retrieve_json('json/player_data/in_game_player_info.json', 'xp_data')
+		self.level = xp_data[0]
+		self.xp = xp_data[1]
 		self.xp_bar_length = 14
+
+		self.rect_buf = []
+		self.buf_pos = None
+
+		self.tmp = 0
 
 	@property
 	def pos(self):
@@ -43,7 +49,7 @@ class Player:
 		elif self.level > 19 and self.level < 30:
 			return (self.level + 1) * 1.5
 		else:
-			return 1*(10**6)
+			return (self.level + 1) * 1.75
 
 	def render_stats(self, display):
 		#HEALTH
@@ -103,10 +109,21 @@ class Player:
 		if new_ani != self.movement:
 			self.curr_image_frame = 0
 
-	def update(self, dt, map_rects):
+	def update(self, dt, map_rects, ignore_input, Main):
+		#return player to where he was before the window was being resized
+		if self.buf_pos != None:
+			self.rect.x = self.buf_pos[0]
+			self.rect.y = self.buf_pos[1]
+		self.xp += 0.1 * dt
+		#print('player:', self.tmp)
 		keys = pygame.key.get_pressed()
 
 		self.mov_dir = keys[pygame.K_d] - keys[pygame.K_a]
+		if self.mov_dir != 0:
+			if self.buf_pos != None:
+				self.buf_pos = None
+		if ignore_input:
+			self.mov_dir = 0
 		if self.mov_dir != 0:
 			self.dir = self.mov_dir
 			if not self.hitground:
@@ -136,6 +153,14 @@ class Player:
 
 		self.rect.x += self.mov_dir * self.mov_speed * dt
 		hits = self.collisions(map_rects)
+		#this is for the occasion when the user resizes the window
+		#use_buf = False
+		#if len(hits) > 0:
+		#	self.rect_buf = hits
+		#else:
+		#	use_buf = True
+		#if use_buf:
+		#	hits = self.rect_buf
 		for d in hits:
 			rect = d[0]
 			if self.mov_dir > 0:
@@ -149,6 +174,15 @@ class Player:
 
 		self.rect.y += self.y_momentum * dt
 		hits = self.collisions(map_rects)
+		#this is for the occasion when the user resizes the window
+		#use_buf = False
+		#if len(hits) > 0:
+		#	self.rect_buf = hits
+		#else:
+		#	use_buf = True
+		#if use_buf:
+		#	hits = self.rect_buf
+		#print(iters)
 		for d in hits:
 			rect = d[0]
 			if self.y_momentum > 0:

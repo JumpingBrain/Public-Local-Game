@@ -1,6 +1,9 @@
 {
-	"winsize" : [1280, 720],
-	"dissize" : [320, 180],
+	"winsize" 		: [1280, 720],
+	"dissize_r"		: 200,
+	"dissize" 		: [320, 180],
 
-	"fps_cap" : 10000
+	"fps_cap" 		: 10000,
+
+	"save_freq"		: 2
 }
