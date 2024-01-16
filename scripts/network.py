@@ -16,29 +16,16 @@ def find_search_speed():
 	signal_strength = int(''.join([i for i in (''.join([i for i in list((results.decode('ascii')).split('\n')) if 'Signal' in i]).strip()) if i.isnumeric()]))
 	return .085 / (signal_strength / 100)
 
-def get_end_ip_id(ip_address):
-	n = 0
-	for char in str(ipaddress):
-		n += 1
-		if char == '.':
-			n = 0
-
-	return n
-
 class Network:
 	def __init__(self, skip, server='N/A'):
 		if not skip:
 			self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			self.server = socket.gethostbyname(socket.gethostname())
-			print(self.server)
 			self.found_server = False
 			self.p = None
 			self.ip_found = None
-			network = ipaddress.ip_network(self.server[:-get_end_ip_id(self.server)] + '0/24')
-
 			self.search_speed = find_search_speed()
 			network = ipaddress.ip_network(self.server[:-3] + '0/24')
-
 			for ip in network:
 				addr = (str(ip), 5555)
 				#print('checking ', addr)
@@ -52,11 +39,9 @@ class Network:
 					self.ip_found = addr[0]
 					break
 		else:
-			print(server)
 			if server == 'N/A':
 				self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 				self.server = socket.gethostbyname(socket.gethostname())
-				print(self.server)
 				self.port = 5555
 				self.addr = (self.server, self.port)
 				self.p = self.connect()
@@ -75,7 +60,6 @@ class Network:
 	def search_servers(self, addr):
 		try:
 			self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #gotta make new socket else we get \/
-			self.client.settimeout(0.1)									#[WinError 10022] An invalid argument was supplied
 			self.client.settimeout(self.search_speed)						#[WinError 10022] An invalid argument was supplied
 			self.p = self.client.connect(addr)
 			#print(self.p)
