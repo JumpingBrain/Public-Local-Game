@@ -67,6 +67,10 @@ class Main:
 		self.darkened_bg.fill((0, 0, 0))
 		self.darkened_bg.set_alpha(75)
 
+		#key press variables
+		self.f = False
+		self.rmb = False
+
 	def process(self, p1, p2, p3):
 		self.dt = self.clock.tick(data.fps_cap) * .001 * data.dt_fps
 		self.ticks += 1
@@ -79,6 +83,8 @@ class Main:
 		self.int_camera[1] = floor(self.camera[1])
 
 		mouse_pressed = pygame.mouse.get_pressed()[0]
+		self.f = False
+		self.rmb = False
 		for event in pygame.event.get():
 			if event.type == QUIT:
 				pygame.quit()
@@ -96,6 +102,12 @@ class Main:
 							p1.movement = 'jumping'
 				elif event.key == K_ESCAPE:
 					self.paused_game = not self.paused_game
+				elif event.key == K_f:
+					self.f = True
+
+			elif event.type == MOUSEBUTTONDOWN:
+				if event.button == 3:
+					self.rmb = True
 			if event.type == WINDOWRESIZED:
 				self.resized = True
 				#the buffer is just so that the player returns back to where he was
@@ -114,7 +126,14 @@ class Main:
 				data.winsize = (new_width, new_height)
 				data.ratio = [new_width / data.dissize[0], new_height / data.dissize[1]]
 				self.resized = False
+		#this is used for the player to access (means i only have to pass one dictionary and not 50 variables)
+		key_presses = {
+			'f' : self.f,
+			'rmb' : self.rmb
+		}
 
+		p1.update(self.dt, self.map.map_rects, self.ignore_input)
+		p1.actions(key_presses, self.dt)
 
 		if self.timer >= data.dt_fps:
 			self.timer = 0
@@ -126,7 +145,10 @@ class Main:
 		self.display.fill((135, 206, 245))
 		self.map.render(p1.pos)
 
-		p1.update(self.dt, self.map.map_rects, self.ignore_input, self)
+		if p1.id_tag != '1':
+			p1.run_enemy(self.display, self.dt, self.int_camera, p2)
+		else:
+			p1.run_enemy(self.display, self.dt, self.int_camera, p1)
 
 		p1.render(self.display, self.int_camera)
 
@@ -163,6 +185,7 @@ class Main:
 
 	def run(self):
 		p1 = self.network.get_p()
+		print(p1)
 		p1.gamer_tag = data.gamer_tag_str
 		while 1:
 			if not self.exit_game:

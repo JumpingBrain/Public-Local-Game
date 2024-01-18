@@ -4,6 +4,7 @@ import sys
 import pickle
 
 from player import Player
+from enemy import Enemy
 
 
 server = socket.gethostbyname(socket.gethostname())
@@ -21,6 +22,7 @@ s.listen(3)
 print("Waiting for connection, Server Started")
 
 
+enemy = Enemy()
 players = [Player([50, 10], '1'), Player([100, 10], '2'), Player([100, 10], '3')]
 
 class Data:
@@ -31,6 +33,8 @@ class Data:
 d = Data()
 
 def threaded_client(conn, player_id):
+	if player_id != 0:
+		players[player_id].enemy = players[player_id].enemy
 	conn.send(pickle.dumps(players[player_id]))
 	#print('sent play obj')
 	reply = []
@@ -38,11 +42,14 @@ def threaded_client(conn, player_id):
 		try:
 			data = pickle.loads(conn.recv(2048))
 			players[player_id] = data
+			players[1].enemy = players[0].enemy
+			players[2].enemy = players[0].enemy
 
 			if not data:
 				#print("Disconnected")
 				break
 			else:
+				# update the enemies in the other player classes
 				if player_id == 0:
 					reply = [players[1], players[2]]
 				elif player_id == 1:

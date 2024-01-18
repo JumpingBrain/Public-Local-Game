@@ -10,6 +10,7 @@ class Player:
 
 		self.falling_speed = .2
 		self.y_momentum = 0
+		self.x_momentum = 0
 		self.dir = 1
 		self.mov_dir = 0
 		self.curr_image_frame = 0
@@ -35,7 +36,21 @@ class Player:
 		self.rect_buf = []
 		self.buf_pos = None
 
-		self.tmp = 0
+		# load in the enemy
+		if self.id_tag == '1':
+			from enemy import Enemy # if you're hosting the server, import the enemy class
+			self.enemy = Enemy()
+		else:
+			self.enemy = None
+
+		#actions (like a fighting move) that the player can do
+		self.dash = False
+		self.dash_cnt = 0
+		self.dash_time_length = .1
+		self.dash_finished = False #this is for the slowing down portion
+		self.dash_cooldown = False
+		self.dash_cooldown_timer = 0
+		self.dash_cooldown_length = .75
 
 	@property
 	def pos(self):
@@ -109,13 +124,35 @@ class Player:
 		if new_ani != self.movement:
 			self.curr_image_frame = 0
 
-	def update(self, dt, map_rects, ignore_input, Main):
+	def do_dash(self, dt):
+		if self.dash:
+			dash_speed = 8 * self.dir * dt
+			self.x_momentum += dash_speed
+			self.dash_cnt += 1 * dt
+			if self.dash_cnt >= data.dt_fps * self.dash_time_length:
+				self.dash = False
+				self.dash_cnt = 0
+				self.dash_finished = True
+				self.dash_cooldown = True
+
+		if self.dash_cooldown:
+			self.dash_cooldown_timer += 1 * dt
+			if self.dash_cooldown_timer >= data.dt_fps * self.dash_cooldown_length:
+				self.dash_cooldown_timer = 0
+				self.dash_cooldown = False
+
+	def actions(self, key_presses, dt):
+		if key_presses['rmb']:
+			if not self.dash_cooldown:
+				self.dash = True
+		self.do_dash(dt)
+
+	def update(self, dt, map_rects, ignore_input):
 		#return player to where he was before the window was being resized
 		if self.buf_pos != None:
 			self.rect.x = self.buf_pos[0]
 			self.rect.y = self.buf_pos[1]
 		self.xp += 0.1 * dt
-		#print('player:', self.tmp)
 		keys = pygame.key.get_pressed()
 
 		self.mov_dir = keys[pygame.K_d] - keys[pygame.K_a]
@@ -151,7 +188,35 @@ class Player:
 			if self.mov_dir == 0: self.curr_image_frame += data.hitground_ani_speed * dt
 			else: self.curr_image_frame += data.hitground_ani_speed * 2 * dt
 
-		self.rect.x += self.mov_dir * self.mov_speed * dt
+		if self.mov_dir == 1:
+			dir = 'right'
+		elif self.mov_dir == -1:
+			dir = 'left'
+
+		if self.mov_dir != 0:
+			if not self.dash:
+				if dir == 'right':
+					if not self.x_momentum >= self.mov_speed:
+						self.x_momentum += self.mov_dir * (self.mov_speed * .75) * dt
+						if not self.dash:
+							self.dash_finished = False
+				else:
+					if not self.x_momentum <= -self.mov_speed:
+						self.x_momentum += self.mov_dir * (self.mov_speed * .75) * dt
+						if not self.dash:
+							self.dash_finished = False
+		if self.x_momentum != 0:
+			if not self.dash_finished:
+				deceleration = .75
+			else:
+				deceleration = .5
+			diff = (self.x_momentum * -1) * deceleration
+			self.x_momentum += diff * dt
+			if abs(self.x_momentum) < .2 and self.mov_dir == 0:
+				self.x_momentum = 0
+				self.dash_finished = False
+
+		self.rect.x += self.x_momentum * dt
 		hits = self.collisions(map_rects)
 		#this is for the occasion when the user resizes the window
 		#use_buf = False
@@ -163,10 +228,12 @@ class Player:
 		#	hits = self.rect_buf
 		for d in hits:
 			rect = d[0]
-			if self.mov_dir > 0:
+			if self.x_momentum > 0:
 				self.rect.right = rect.left
-			elif self.mov_dir < 0:
+				self.x_momentum = 0
+			elif self.x_momentum < 0:
 				self.rect.left = rect.right
+				self.x_momentum = 0
 
 		self.y_momentum += self.falling_speed * dt
 		if self.y_momentum >= 6:
@@ -195,3 +262,8 @@ class Player:
 			elif self.y_momentum < 0:
 				self.rect.top = rect.bottom
 				self.y_momentum = 0
+
+	def run_enemy(self, surf, dt, int_camera, p1):
+		if self.id_tag == '1':
+			self.enemy.move(dt)
+		p1.enemy.render(surf, int_camera)
